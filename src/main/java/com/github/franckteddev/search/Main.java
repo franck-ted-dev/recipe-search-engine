@@ -23,9 +23,7 @@ public class Main {
         SearchEngine searcher = new SubstringSearchEngine(storage);
         ResponsePresenter presenter = new ConsoleOutput();
 
-        int m = reader.readNumberSearches();
-        for (int i = 0; i < m; i++) {
-            presenter.output(searcher.search(reader.readWord()));
-        }
+        Menu menu = new Menu(presenter, storage, searcher, reader);
+        menu.start();
     }
 }
