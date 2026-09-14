@@ -12,4 +12,9 @@ public class ConsoleOutput implements ResponsePresenter{
         System.out.println("Found:");
         results.forEach(System.out::println);
     }
+
+    @Override
+    public void output(String message) {
+        System.out.println(message);
+    }
 }
