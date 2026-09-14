@@ -27,4 +27,9 @@ public class KeyboardInputReader implements InputReader{
     public String readWord(){
         return scanner.nextLine();
     }
+
+    @Override
+    public int readUserChoice(){
+        return Integer.parseInt(scanner.nextLine());
+    }
 }
