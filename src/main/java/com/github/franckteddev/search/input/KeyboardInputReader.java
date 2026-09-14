@@ -24,11 +24,6 @@ public class KeyboardInputReader implements InputReader{
     }
 
     @Override
-    public int readNumberSearches(){
-        return Integer.parseInt(scanner.nextLine());
-    }
-
-    @Override
     public String readWord(){
         return scanner.nextLine();
     }
