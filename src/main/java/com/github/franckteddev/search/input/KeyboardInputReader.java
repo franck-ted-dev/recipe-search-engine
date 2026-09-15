@@ -12,18 +12,6 @@ public class KeyboardInputReader implements InputReader{
     }
 
     @Override
-    public int readNumberLines() {
-        return Integer.parseInt(scanner.nextLine());
-    }
-
-    @Override
-    public void readAndStoreLines(int count, Storage storage) {
-        for(int i = 0; i < count; i++) {
-            storage.add(scanner.nextLine());
-        }
-    }
-
-    @Override
     public String readWord(){
         return scanner.nextLine();
     }
