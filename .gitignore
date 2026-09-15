@@ -40,6 +40,7 @@ build/
 
 ### fichier d'apprentissage ###
 architecture.ctb
+.architecture.ctb*
 
 ### Manual test ###
 data.txt
