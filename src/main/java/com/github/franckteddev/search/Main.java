@@ -6,8 +6,8 @@ import com.github.franckteddev.search.input.KeyboardInputReader;
 import com.github.franckteddev.search.input.LinesReader;
 import com.github.franckteddev.search.output.ConsoleOutput;
 import com.github.franckteddev.search.output.ResponsePresenter;
+import com.github.franckteddev.search.search.InvertedIndexSearchEngine;
 import com.github.franckteddev.search.search.SearchEngine;
-import com.github.franckteddev.search.search.SubstringSearchEngine;
 import com.github.franckteddev.search.store.DynamicSizeStorage;
 import com.github.franckteddev.search.store.Storage;
 
@@ -42,7 +42,7 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         InputReader reader = new KeyboardInputReader(scanner);
-        SearchEngine searcher = new SubstringSearchEngine(storage);
+        SearchEngine searcher = new InvertedIndexSearchEngine(storage);
 
         Menu menu = new Menu(presenter, storage, searcher, reader);
         menu.start();
