@@ -2,19 +2,19 @@ package com.github.franckteddev.search;
 
 import com.github.franckteddev.search.input.InputReader;
 import com.github.franckteddev.search.output.ResponsePresenter;
-import com.github.franckteddev.search.search.SearchEngine;
+import com.github.franckteddev.search.search.*;
 import com.github.franckteddev.search.store.Storage;
 
 public class Menu {
     private final ResponsePresenter responsePresenter;
     private final Storage storage;
-    private final SearchEngine searchEngine;
+    private final InvertedIndexSearchEngine searchEngine;
     private final InputReader inputReader;
     private boolean running;
 
     public Menu(ResponsePresenter responsePresenter,
                 Storage storage,
-                SearchEngine searchEngine,
+                InvertedIndexSearchEngine searchEngine,
                 InputReader inputReader) {
         this.responsePresenter = responsePresenter;
         this.storage = storage;
