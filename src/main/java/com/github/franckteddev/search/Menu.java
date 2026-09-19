@@ -5,6 +5,8 @@ import com.github.franckteddev.search.output.ResponsePresenter;
 import com.github.franckteddev.search.search.*;
 import com.github.franckteddev.search.store.Storage;
 
+import java.util.Optional;
+
 public class Menu {
     private final ResponsePresenter responsePresenter;
     private final Storage storage;
@@ -64,9 +66,26 @@ public class Menu {
     }
 
     private void searchInformation(){
-        this.responsePresenter.output("Enter a word to find all suitable lines.");
+        this.responsePresenter.output("Enter the word(s) to find");
         String searchQuery = inputReader.readWord();
+        this.responsePresenter.output("Select a matching strategy: ALL, ANY, NONE");
+        String strategy = inputReader.readWord();
+        Optional<SearchStrategy> searchStrategy = parseStrategy(strategy);
+        if (searchStrategy.isEmpty()){
+            this.responsePresenter.output("Incorrect strategy! Try again.");
+            return;
+        }
+        this.searchEngine.setSearchStrategy(searchStrategy.get());
         this.responsePresenter.output(this.searchEngine.search(searchQuery));
+    }
+
+    private Optional<SearchStrategy> parseStrategy(String strategy){
+        return switch (strategy){
+            case "ALL" -> Optional.of(new AllStrategy());
+            case "ANY" -> Optional.of(new AnyStrategy());
+            case "NONE" -> Optional.of(new NoneStrategy());
+            default -> Optional.empty();
+        };
     }
 
     private void printAllData(){
