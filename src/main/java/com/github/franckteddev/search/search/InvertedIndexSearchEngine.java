@@ -7,8 +7,10 @@ import java.util.*;
 public class InvertedIndexSearchEngine implements SearchEngine{
     private final Map<String, Set<Integer>> invertedIndex;
     private final List<String> allLines;
+    private SearchStrategy searchStrategy;
 
     public InvertedIndexSearchEngine(Storage storage){
+        this.searchStrategy = new AllStrategy();
         this.invertedIndex = new HashMap<>();
         this.allLines = storage.getAll();
         int pos = 0;
@@ -25,11 +27,23 @@ public class InvertedIndexSearchEngine implements SearchEngine{
         }
     }
 
+    public void setSearchStrategy(SearchStrategy searchStrategy) {
+        this.searchStrategy = searchStrategy;
+    }
+
     @Override
     public List<String> search(String query) {
-        query = query.trim();
-        query = query.toLowerCase();
-        Set<Integer> positions = this.invertedIndex.getOrDefault(query, Collections.emptySet());
-        return positions.stream().map(allLines::get).toList();
+        query = query.trim().toLowerCase();
+        Set<Integer> positionsAfterStrategy = new HashSet<>();
+        if(!query.isEmpty()){
+            String[] words = query.split("\\s+");
+            List<Set<Integer>> positionsList = new ArrayList<>();
+            for(String word: words){
+                Set<Integer> positions = this.invertedIndex.getOrDefault(word, Collections.emptySet());
+                positionsList.add(positions);
+            }
+            positionsAfterStrategy = this.searchStrategy.executeStrategy(positionsList, allLines.size());
+        }
+        return positionsAfterStrategy.stream().map(allLines::get).toList();
     }
 }
