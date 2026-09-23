@@ -1,9 +1,9 @@
 package com.github.franckteddev.search.handler;
 
-import com.github.franckteddev.search.model.Ingredient;
 import com.github.franckteddev.search.model.Recipe;
 import com.github.franckteddev.search.search.InvertedIndexSearchEngine;
 import com.github.franckteddev.search.search.SearchRequestParam;
+import com.github.franckteddev.search.utility.JsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.json.JSONArray;
@@ -59,26 +59,8 @@ public class SearchHandler implements HttpHandler, JsonResponseSender{
     private JSONObject buildResponse(List<Recipe> recipes) {
         JSONArray arrayRecipes = new JSONArray();
         for (Recipe recipe : recipes) {
-            JSONObject objectRecipe = new JSONObject();
-            objectRecipe.put("name", recipe.name());
-            objectRecipe.put("ingredients", buildIngredients(recipe));
-            objectRecipe.put("instructions", recipe.instructions());
-            objectRecipe.put("country", recipe.country());
-            objectRecipe.put("image", recipe.imageURL());
-            objectRecipe.put("video", recipe.videoURL());
-            arrayRecipes.put(objectRecipe);
+            arrayRecipes.put(JsonBuilder.buildJsonRecipe(recipe));
         }
         return new JSONObject().put("recipes", arrayRecipes);
-    }
-
-    private JSONArray buildIngredients(Recipe recipe) {
-        JSONArray arrayIngredients = new JSONArray();
-        for (Ingredient ingredient : recipe.ingredients()) {
-            JSONObject objectIngredient = new JSONObject();
-            objectIngredient.put("name", ingredient.name());
-            objectIngredient.put("quantity", ingredient.quantity());
-            arrayIngredients.put(objectIngredient);
-        }
-        return arrayIngredients;
     }
 }

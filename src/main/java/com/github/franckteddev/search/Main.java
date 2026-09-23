@@ -2,11 +2,13 @@ package com.github.franckteddev.search;
 
 import com.github.franckteddev.search.connexion.RawDataFetcher;
 import com.github.franckteddev.search.handler.HealthHandler;
+import com.github.franckteddev.search.handler.RecipeHandler;
 import com.github.franckteddev.search.handler.SearchHandler;
 import com.github.franckteddev.search.input.RecipeDataReader;
 import com.github.franckteddev.search.mapper.RecipeMapper;
 import com.github.franckteddev.search.model.Recipe;
 import com.github.franckteddev.search.search.InvertedIndexSearchEngine;
+import com.github.franckteddev.search.search.RecipeIndex;
 import com.github.franckteddev.search.store.DynamicSizeStorage;
 import com.github.franckteddev.search.store.Storage;
 import com.sun.net.httpserver.HttpServer;
@@ -25,11 +27,13 @@ public class Main {
         Storage<Recipe> storage = new DynamicSizeStorage<>();
         recipeDataReader.readAndStoreElements(storage);
         InvertedIndexSearchEngine searchEngine = new InvertedIndexSearchEngine(storage);
+        RecipeIndex recipeIndex = new RecipeIndex(storage);
 
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.setExecutor(null);
         server.createContext("/health", new HealthHandler(searchEngine));
         server.createContext("/search", new SearchHandler(searchEngine));
+        server.createContext("/recipes", new RecipeHandler(recipeIndex));
         server.start();
     }
 }
