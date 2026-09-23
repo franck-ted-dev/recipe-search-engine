@@ -2,6 +2,7 @@ package com.github.franckteddev.search;
 
 import com.github.franckteddev.search.connexion.RawDataFetcher;
 import com.github.franckteddev.search.handler.HealthHandler;
+import com.github.franckteddev.search.handler.SearchHandler;
 import com.github.franckteddev.search.input.RecipeDataReader;
 import com.github.franckteddev.search.mapper.RecipeMapper;
 import com.github.franckteddev.search.model.Recipe;
@@ -28,6 +29,7 @@ public class Main {
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.setExecutor(null);
         server.createContext("/health", new HealthHandler(searchEngine));
+        server.createContext("/search", new SearchHandler(searchEngine));
         server.start();
     }
 }
