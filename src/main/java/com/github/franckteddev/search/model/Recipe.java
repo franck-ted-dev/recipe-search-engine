@@ -3,6 +3,7 @@ package com.github.franckteddev.search.model;
 import java.util.List;
 
 public record Recipe(
+                     String id,
                      String name,
                      String instructions,
                      String country,

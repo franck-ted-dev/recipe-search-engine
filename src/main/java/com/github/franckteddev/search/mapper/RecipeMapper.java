@@ -21,9 +21,14 @@ public class RecipeMapper {
             }
             for(int i = 0; i < centralArray.length(); i++){
                 JSONObject mealObject = centralArray.getJSONObject(i);
+                String id = mealObject.optString("idMeal");
+                if(id.isEmpty()){
+                    logger.warning("Skipping recipe with null id");
+                    continue;
+                }
                 String name = mealObject.optString("strMeal");
                 if(name.isEmpty()){
-                    logger.warning("Skipping recipe with empty name");
+                    logger.warning("Skipping recipe " + id + " with empty name");
                     continue;
                 }
                 String instructions = mealObject.optString("strInstructions");
@@ -39,7 +44,7 @@ public class RecipeMapper {
                     logger.warning("Skipping recipe " + name + " with empty ingredients");
                     continue;
                 }
-                recipes.add(new Recipe(name, instructions, country, ingredients, imageURL, videoURL));
+                recipes.add(new Recipe(id, name, instructions, country, ingredients, imageURL, videoURL));
             }
         }
         return recipes;
