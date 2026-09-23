@@ -4,6 +4,6 @@ import com.github.franckteddev.search.store.Storage;
 
 import java.io.IOException;
 
-public interface LinesReader {
-    void readAndStoreLines(Storage storage) throws IOException;
+public interface ElementReader<E> {
+    void readAndStoreElements(Storage<E> storage) throws IOException;
 }

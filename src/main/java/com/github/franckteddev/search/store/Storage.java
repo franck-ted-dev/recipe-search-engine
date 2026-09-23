@@ -2,12 +2,11 @@ package com.github.franckteddev.search.store;
 
 import java.util.List;
 
-public interface Storage {
+public interface Storage<T> {
     /**
-     * With this method we can add a line to the storage
+     * With this method we can add an element to the storage
      *
-     * @throws IllegalStateException if the storage is full
      */
-    void add(String line);
-    List<String> getAll();
+    void add(T element);
+    List<T> getAll();
 }
