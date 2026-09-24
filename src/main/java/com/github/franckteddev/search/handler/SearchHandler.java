@@ -7,6 +7,7 @@ import com.github.franckteddev.search.utility.JsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -24,12 +25,16 @@ public class SearchHandler implements HttpHandler, JsonResponseSender{
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        SearchRequestParam requestParams = readRequestParams(readRequest(exchange));
-        List<Recipe> recipes = searchEngine.search(requestParams);
-        sendJsonResponse(exchange, 200, buildResponse(recipes));
+        try {
+            SearchRequestParam requestParams = readRequestParams(readRequest(exchange));
+            List<Recipe> recipes = searchEngine.search(requestParams);
+            sendJsonResponse(exchange, 200, buildResponse(recipes));
+        } catch (JSONException e) {
+            sendJsonResponse(exchange, 400, new JSONObject().put("error", "Invalid JSON request"));
+        }
     }
 
-    private JSONObject readRequest(HttpExchange exchange) throws IOException {
+    private JSONObject readRequest(HttpExchange exchange) throws IOException, JSONException {
         InputStream requestBody = exchange.getRequestBody();
         byte[] bodyBytes = requestBody.readAllBytes();
         return new JSONObject(new String(bodyBytes, StandardCharsets.UTF_8));
