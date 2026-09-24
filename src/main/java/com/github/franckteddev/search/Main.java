@@ -4,6 +4,7 @@ import com.github.franckteddev.search.connexion.RawDataFetcher;
 import com.github.franckteddev.search.handler.HealthHandler;
 import com.github.franckteddev.search.handler.RecipeHandler;
 import com.github.franckteddev.search.handler.SearchHandler;
+import com.github.franckteddev.search.handler.UnknownPathHandler;
 import com.github.franckteddev.search.input.RecipeDataReader;
 import com.github.franckteddev.search.mapper.RecipeMapper;
 import com.github.franckteddev.search.model.Recipe;
@@ -34,6 +35,7 @@ public class Main {
         server.createContext("/health", new HealthHandler(searchEngine));
         server.createContext("/search", new SearchHandler(searchEngine));
         server.createContext("/recipes", new RecipeHandler(recipeIndex));
+        server.createContext("/", new UnknownPathHandler());
         server.start();
     }
 }
