@@ -26,6 +26,12 @@ public class SearchHandler implements HttpHandler, JsonResponseSender{
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
+            boolean condition = exchange.getRequestHeaders().getFirst("Content-Type") != null
+                    && exchange.getRequestHeaders().getFirst("Content-Type").contains("application/json");
+            if(!condition){
+                sendJsonResponse(exchange, 415, new JSONObject().put("error", "Invalid Content-Type"));
+                return;
+            }
             SearchRequestParam requestParams = readRequestParams(readRequest(exchange));
             List<Recipe> recipes = searchEngine.search(requestParams);
             sendJsonResponse(exchange, 200, buildResponse(recipes));
