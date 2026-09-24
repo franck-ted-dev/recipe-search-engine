@@ -1,0 +1,22 @@
+body {
+    background-color: lightyellow;
+}
+
+.ingredient-label {
+    font-weight: bold;
+    padding: 4px;
+    margin-bottom: 8px;
+    border: 1px solid gray;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

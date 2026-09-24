@@ -1,22 +1,30 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Recipe Search Engine</title>
-  </head>
-  <body>
-    <h1>Recipe Search Engine</h1>
+    <link rel="stylesheet" href="style.css">
+</head>
 
-    <form>
-      <label for="all-ingredients">Ingredients à inclure (ALL)</label>
-      <input type="search" id="all-ingredients">
+<body>
+<h1>Recipe Search Engine</h1>
 
-      <label for="any-ingredients">Au moins un de ces ingredients (ANY)</label>
-      <input type="search" id="any-ingredients">
+<form>
+    <div class="field">
+        <label for="all-ingredients" class="ingredient-label">Ingredients à inclure (ALL)</label>
+        <input type="search" id="all-ingredients">
+    </div>
 
-      <label for="none-ingredients">Ingredients à exclure (NONE)</label>
-      <input type="search" id="none-ingredients">
+    <div class="field">
+        <label for="any-ingredients" class="ingredient-label">Au moins un de ces ingredients (ANY)</label>
+        <input type="search" id="any-ingredients">
+    </div>
 
-      <button type="submit">Rechercher</button>
-    </form>
-  </body>
+    <div class="field">
+        <label for="none-ingredients" class="ingredient-label">Ingredients à exclure (NONE)</label>
+        <input type="search" id="none-ingredients">
+    </div>
+
+    <button type="submit">Rechercher</button>
+</form>
+</body>
 </html>
