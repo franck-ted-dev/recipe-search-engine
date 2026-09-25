@@ -1,6 +1,7 @@
 package com.github.franckteddev.search;
 
 import com.github.franckteddev.search.connexion.RawDataFetcher;
+import com.github.franckteddev.search.filter.CorsFilter;
 import com.github.franckteddev.search.filter.MethodFilter;
 import com.github.franckteddev.search.handler.HealthHandler;
 import com.github.franckteddev.search.handler.RecipeHandler;
@@ -39,6 +40,7 @@ public class Main {
         healthContext.getFilters().add(new MethodFilter("GET"));
 
         HttpContext searchContext = server.createContext("/search", new SearchHandler(searchEngine));
+        searchContext.getFilters().add(new CorsFilter());
         searchContext.getFilters().add(new MethodFilter("POST"));
 
         HttpContext recipeContext = server.createContext("/recipes", new RecipeHandler(recipeIndex));
