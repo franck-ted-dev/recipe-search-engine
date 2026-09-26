@@ -78,3 +78,7 @@ button {
     font-weight: bold;
     cursor: pointer;
 }
+
+#dialog-instructions {
+    white-space: pre-line;
+}
