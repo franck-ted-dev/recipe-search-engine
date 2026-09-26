@@ -13,15 +13,34 @@ form.addEventListener("submit", async function (event) {
         none: parseIngredients(document.querySelector("#none-ingredients").value),
     };
 
-    const response = await fetch("http://localhost:8000/search", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(requestBody),
-    });
+    try {
+        const response = await fetch("http://localhost:8000/search", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(requestBody),
+        });
 
-    const data = await response.json();
-    renderRecipes(data.recipes);
+        if (!response.ok) {
+            renderError();
+            return;
+        }
+
+        const data = await response.json();
+        renderRecipes(data.recipes);
+    } catch (error) {
+        renderError();
+    }
 });
+
+function renderError(){
+    const resultsContainer = document.querySelector("#results");
+    resultsContainer.textContent = "";
+
+    const messageError = document.createElement("p");
+    messageError.className = "error-message";
+    messageError.textContent = "Impossible de contacter le serveur. Réessayer plus tard";
+    resultsContainer.appendChild(messageError);
+}
 
 function renderRecipes(recipes) {
     const resultsContainer = document.querySelector("#results");
