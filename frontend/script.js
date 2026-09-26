@@ -26,6 +26,15 @@ form.addEventListener("submit", async function (event) {
 function renderRecipes(recipes) {
     const resultsContainer = document.querySelector("#results");
     resultsContainer.textContent = "";
+
+    if(recipes.length === 0) {
+        const messageNoResults = document.createElement("p");
+        messageNoResults.className = "no-results-message";
+        messageNoResults.textContent = "Aucune recette ne correspond à cette recherche";
+        resultsContainer.appendChild(messageNoResults);
+        return;
+    }
+
     const dialog = document.querySelector("#recipe-details");
     const recipeCountry = document.querySelector("#dialog-country");
     const recipeIngredients = document.querySelector("#dialog-ingredients");
