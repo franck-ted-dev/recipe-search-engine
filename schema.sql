@@ -1,5 +1,5 @@
 
-CREATE TABLE Recette(
+CREATE TABLE Recipe(
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR,
     instructions VARCHAR,
@@ -12,6 +12,6 @@ CREATE TABLE Ingredient(
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR,
     quantity VARCHAR,
-    recette_id INTEGER,
-    FOREIGN KEY(recette_id) REFERENCES Recette
+    recipe_id INTEGER,
+    FOREIGN KEY(recipe_id) REFERENCES Recipe
 );
