@@ -1,37 +1,38 @@
 package com.github.franckteddev.search;
 
-import com.github.franckteddev.search.connexion.RawDataFetcher;
+import com.github.franckteddev.search.db.RecipeRepository;
 import com.github.franckteddev.search.filter.CorsFilter;
 import com.github.franckteddev.search.filter.MethodFilter;
 import com.github.franckteddev.search.handler.HealthHandler;
 import com.github.franckteddev.search.handler.RecipeHandler;
 import com.github.franckteddev.search.handler.SearchHandler;
 import com.github.franckteddev.search.handler.UnknownPathHandler;
-import com.github.franckteddev.search.input.RecipeDataReader;
-import com.github.franckteddev.search.mapper.RecipeMapper;
 import com.github.franckteddev.search.model.Recipe;
 import com.github.franckteddev.search.search.InvertedIndexSearchEngine;
 import com.github.franckteddev.search.search.RecipeIndex;
-import com.github.franckteddev.search.store.DynamicSizeStorage;
-import com.github.franckteddev.search.store.Storage;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.List;
 
 public class Main {
-    public static void main(String[] args) throws IOException, InterruptedException {
-        RawDataFetcher rawDataFetcher = new RawDataFetcher();
-        RecipeMapper recipeMapper = new RecipeMapper();
-        RecipeDataReader recipeDataReader = new RecipeDataReader(
-                recipeMapper,
-                rawDataFetcher.fetchAll()
-        );
-        Storage<Recipe> storage = new DynamicSizeStorage<>();
-        recipeDataReader.readAndStoreElements(storage);
-        InvertedIndexSearchEngine searchEngine = new InvertedIndexSearchEngine(storage);
-        RecipeIndex recipeIndex = new RecipeIndex(storage);
+    public static void main(String[] args) throws IOException, SQLException {
+        List<Recipe> recipes;
+        String url = "jdbc:postgresql://localhost:5432/recipe_search";
+        String user = "recipe_user";
+        String password = "recipe_password";
+        try(Connection connection = DriverManager.getConnection(url, user, password)){
+            RecipeRepository recipeRepository = new RecipeRepository(connection);
+            recipes = recipeRepository.getAll();
+        }
+
+        InvertedIndexSearchEngine searchEngine = new InvertedIndexSearchEngine(recipes);
+        RecipeIndex recipeIndex = new RecipeIndex(recipes);
 
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.setExecutor(null);

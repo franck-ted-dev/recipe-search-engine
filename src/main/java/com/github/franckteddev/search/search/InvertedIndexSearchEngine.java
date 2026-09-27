@@ -2,7 +2,6 @@ package com.github.franckteddev.search.search;
 
 import com.github.franckteddev.search.model.Ingredient;
 import com.github.franckteddev.search.model.Recipe;
-import com.github.franckteddev.search.store.Storage;
 import com.github.franckteddev.search.utility.Normalizer;
 
 import java.util.*;
@@ -17,12 +16,12 @@ public class InvertedIndexSearchEngine implements SearchEngine{
     private final AnyStrategy anyStrategy;
     private final NoneStrategy noneStrategy;
 
-    public InvertedIndexSearchEngine(Storage<Recipe> storage){
+    public InvertedIndexSearchEngine(List<Recipe> recipes){
         this.allStrategy = new AllStrategy();
         this.anyStrategy = new AnyStrategy();
         this.noneStrategy = new NoneStrategy();
         this.invertedIndex = new HashMap<>();
-        this.recipes = storage.getAll();
+        this.recipes = recipes;
         int pos = 0;
 
         for (Recipe recipe : recipes){
