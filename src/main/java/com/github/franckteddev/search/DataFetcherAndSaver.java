@@ -21,17 +21,21 @@ public class DataFetcherAndSaver {
         String password = "recipe_password";
         try(Connection connection = DriverManager.getConnection(url, user, password)){
             RecipeRepository recipeRepository = new RecipeRepository(connection);
-            RawDataFetcher rawDataFetcher = new RawDataFetcher();
-            RecipeMapper recipeMapper = new RecipeMapper();
-            List<Recipe> recipes = recipeMapper.map(rawDataFetcher.fetchAll());
-            for(Recipe recipe : recipes) {
-                try {
-                    recipeRepository.save(recipe);
-                } catch (SQLException ex) {
-                    LOGGER.severe("Error saving recipe: " + ex.getMessage());
+            if(recipeRepository.isEmpty()) {
+                RawDataFetcher rawDataFetcher = new RawDataFetcher();
+                RecipeMapper recipeMapper = new RecipeMapper();
+                List<Recipe> recipes = recipeMapper.map(rawDataFetcher.fetchAll());
+                for(Recipe recipe : recipes) {
+                    try {
+                        recipeRepository.save(recipe);
+                    } catch (SQLException ex) {
+                        LOGGER.severe("Error saving recipe: " + ex.getMessage());
+                    }
                 }
+                LOGGER.info("Data fetching and saving completed");
+            }else {
+                LOGGER.info("Data already fetched and saved");
             }
-            LOGGER.info("Data fetching and saving completed");
         }
     }
 }
