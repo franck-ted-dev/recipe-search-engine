@@ -1,6 +1,9 @@
 package com.github.franckteddev.search;
 
+import com.github.franckteddev.search.db.CanonicalIngredientRepository;
 import com.github.franckteddev.search.db.RecipeRepository;
+import com.github.franckteddev.search.fetchandsave.CanonicalIngredientFetcherAndSaver;
+import com.github.franckteddev.search.fetchandsave.RecipeFetcherAndSaver;
 import com.github.franckteddev.search.filter.CorsFilter;
 import com.github.franckteddev.search.filter.MethodFilter;
 import com.github.franckteddev.search.handler.HealthHandler;
@@ -19,15 +22,40 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Main {
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
     public static void main(String[] args) throws IOException, SQLException {
         List<Recipe> recipes;
+
         String url = "jdbc:postgresql://localhost:5432/recipe_search";
         String user = "recipe_user";
         String password = "recipe_password";
+
         try(Connection connection = DriverManager.getConnection(url, user, password)){
+            CanonicalIngredientRepository canonicalIngredientRepository =
+                    new CanonicalIngredientRepository(connection);
+            if(canonicalIngredientRepository.isEmpty()){
+                LOGGER.info("No canonical ingredients found, fetching and saving...");
+                CanonicalIngredientFetcherAndSaver canonicalIngredientFetcherAndSaver =
+                        new CanonicalIngredientFetcherAndSaver(connection);
+                canonicalIngredientFetcherAndSaver.execute();
+                LOGGER.info("Canonical ingredients fetched and saved.");
+            }else{
+                LOGGER.info("Canonical ingredients already present in the database.");
+            }
+
             RecipeRepository recipeRepository = new RecipeRepository(connection);
+            if(recipeRepository.isEmpty()){
+                LOGGER.info("No recipes found, fetching and saving...");
+                RecipeFetcherAndSaver recipeFetcherAndSaver = new RecipeFetcherAndSaver(connection);
+                recipeFetcherAndSaver.execute();
+                LOGGER.info("Recipes fetched and saved.");
+            }else{
+                LOGGER.info("Recipes already present in the database.");
+            }
+
             recipes = recipeRepository.getAll();
         }
 
