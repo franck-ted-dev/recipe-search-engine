@@ -1,21 +1,26 @@
 package com.github.franckteddev.search.db;
 
+import com.github.franckteddev.search.model.CanonicalIngredient;
 import com.github.franckteddev.search.model.Ingredient;
 import com.github.franckteddev.search.model.Recipe;
 
 import java.sql.*;
 import java.util.*;
 
+import static com.github.franckteddev.search.utility.Normalizer.normalize;
+
 public class RecipeRepository {
     private final Connection connection;
+    private final List<CanonicalIngredient> canonicalIngredients;
 
-    public RecipeRepository(Connection connection) {
+    public RecipeRepository(Connection connection, List<CanonicalIngredient> canonicalIngredients) {
         this.connection = connection;
+        this.canonicalIngredients = canonicalIngredients;
     }
 
     public void save(Recipe recipe) throws SQLException {
         String insertRecipe = "INSERT INTO Recipe (name, instructions, country, imageURL, videoURL ) VALUES (?, ?, ?, ?, ?)";
-        String insertIngredient = "INSERT INTO ingredient (name, quantity, recipe_id ) VALUES (?, ?, ?)";
+        String insertIngredient = "INSERT INTO ingredient (name, quantity, canonical_ingredient_id, recipe_id ) VALUES (?, ?, ?, ?)";
 
         connection.setAutoCommit(false);
         try {
@@ -36,9 +41,16 @@ public class RecipeRepository {
             }
             try (PreparedStatement ingredientStatement = connection.prepareStatement(insertIngredient)) {
                 for (Ingredient ingredient : recipe.ingredients()) {
+
                     ingredientStatement.setString(1, ingredient.name());
                     ingredientStatement.setString(2, ingredient.quantity());
-                    ingredientStatement.setInt(3, recipeId);
+                    int canonicalIngredientId = getCanonicalIngredientId(normalize(ingredient.name()));
+                    if(canonicalIngredientId > 0){
+                        ingredientStatement.setInt(3, canonicalIngredientId);
+                    }else{
+                        ingredientStatement.setNull(3, Types.INTEGER);
+                    }
+                    ingredientStatement.setInt(4, recipeId);
                     ingredientStatement.executeUpdate();
                 }
             }
@@ -47,6 +59,14 @@ public class RecipeRepository {
             connection.rollback();
             throw e;
         }
+    }
+
+    private int getCanonicalIngredientId(String ingredient) {
+        return canonicalIngredients.stream()
+                .filter(canonicalIngredient -> ingredient.contains(canonicalIngredient.name()))
+                .max(Comparator.comparing(ci->ci.name().length()))
+                .map(CanonicalIngredient::id)
+                .orElse(-1);
     }
 
     public List<Recipe> getAll() throws SQLException {

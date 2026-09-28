@@ -10,6 +10,7 @@ import com.github.franckteddev.search.handler.HealthHandler;
 import com.github.franckteddev.search.handler.RecipeHandler;
 import com.github.franckteddev.search.handler.SearchHandler;
 import com.github.franckteddev.search.handler.UnknownPathHandler;
+import com.github.franckteddev.search.model.CanonicalIngredient;
 import com.github.franckteddev.search.model.Recipe;
 import com.github.franckteddev.search.search.InvertedIndexSearchEngine;
 import com.github.franckteddev.search.search.RecipeIndex;
@@ -46,10 +47,11 @@ public class Main {
                 LOGGER.info("Canonical ingredients already present in the database.");
             }
 
-            RecipeRepository recipeRepository = new RecipeRepository(connection);
+            List<CanonicalIngredient>  canonicalIngredients = canonicalIngredientRepository.getAll();
+            RecipeRepository recipeRepository = new RecipeRepository(connection, canonicalIngredients);
             if(recipeRepository.isEmpty()){
                 LOGGER.info("No recipes found, fetching and saving...");
-                RecipeFetcherAndSaver recipeFetcherAndSaver = new RecipeFetcherAndSaver(connection);
+                RecipeFetcherAndSaver recipeFetcherAndSaver = new RecipeFetcherAndSaver(connection, canonicalIngredients);
                 recipeFetcherAndSaver.execute();
                 LOGGER.info("Recipes fetched and saved.");
             }else{
