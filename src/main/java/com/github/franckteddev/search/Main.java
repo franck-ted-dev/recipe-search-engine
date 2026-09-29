@@ -11,11 +11,12 @@ import com.github.franckteddev.search.handler.RecipeHandler;
 import com.github.franckteddev.search.handler.SearchHandler;
 import com.github.franckteddev.search.handler.UnknownPathHandler;
 import com.github.franckteddev.search.model.CanonicalIngredient;
-import com.github.franckteddev.search.model.Recipe;
+import com.github.franckteddev.search.model.RecipeCompleted;
 import com.github.franckteddev.search.search.InvertedIndexSearchEngine;
 import com.github.franckteddev.search.search.RecipeIndex;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
+import static com.github.franckteddev.search.utility.Converter.convertToRecipes;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -28,7 +29,7 @@ import java.util.logging.Logger;
 public class Main {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
     public static void main(String[] args) throws IOException, SQLException {
-        List<Recipe> recipes;
+        List<RecipeCompleted> recipesCompleted;
 
         String url = "jdbc:postgresql://localhost:5432/recipe_search";
         String user = "recipe_user";
@@ -58,11 +59,11 @@ public class Main {
                 LOGGER.info("Recipes already present in the database.");
             }
 
-            recipes = recipeRepository.getAll();
+            recipesCompleted = recipeRepository.getAll();
         }
 
-        InvertedIndexSearchEngine searchEngine = new InvertedIndexSearchEngine(recipes);
-        RecipeIndex recipeIndex = new RecipeIndex(recipes);
+        InvertedIndexSearchEngine searchEngine = new InvertedIndexSearchEngine(recipesCompleted);
+        RecipeIndex recipeIndex = new RecipeIndex(convertToRecipes(recipesCompleted));
 
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.setExecutor(null);

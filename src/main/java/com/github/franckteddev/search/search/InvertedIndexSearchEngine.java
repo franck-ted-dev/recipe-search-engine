@@ -1,45 +1,46 @@
 package com.github.franckteddev.search.search;
 
-import com.github.franckteddev.search.model.Ingredient;
+import com.github.franckteddev.search.model.IngredientCompleted;
 import com.github.franckteddev.search.model.Recipe;
+import com.github.franckteddev.search.model.RecipeCompleted;
+import com.github.franckteddev.search.utility.Converter;
 import com.github.franckteddev.search.utility.Normalizer;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class InvertedIndexSearchEngine implements SearchEngine{
     private final Map<String, Set<Integer>> invertedIndex;
-    private final List<Recipe> recipes;
-    private static final Logger logger = Logger.getLogger(InvertedIndexSearchEngine.class.getName());
+    private final List<RecipeCompleted> recipesCompleted;
     private final AllStrategy allStrategy;
     private final AnyStrategy anyStrategy;
     private final NoneStrategy noneStrategy;
 
-    public InvertedIndexSearchEngine(List<Recipe> recipes){
+    public InvertedIndexSearchEngine(List<RecipeCompleted> recipesCompleted){
         this.allStrategy = new AllStrategy();
         this.anyStrategy = new AnyStrategy();
         this.noneStrategy = new NoneStrategy();
         this.invertedIndex = new HashMap<>();
-        this.recipes = recipes;
+        this.recipesCompleted = recipesCompleted;
         int pos = 0;
 
-        for (Recipe recipe : recipes){
-            List<Ingredient> ingredients = recipe.ingredients();
-            for (Ingredient ingredient : ingredients){
-                String ingredientName = Normalizer.normalize(ingredient.name());
-                if (!ingredientName.isEmpty()) {
-                    invertedIndex.computeIfAbsent(ingredientName, k -> new HashSet<>()).add(pos);
+        for (RecipeCompleted recipeCompleted : recipesCompleted) {
+            List<IngredientCompleted> ingredientsCompleted = recipeCompleted.ingredientsCompleted();
+            for (IngredientCompleted ingredientCompleted : ingredientsCompleted){
+                String canonicalName = ingredientCompleted.canonicalName();
+                if(canonicalName == null){
+                    continue;
                 }else {
-                    logger.warning("Ingredient name for recipe " + recipe.name() + " is empty after normalization");
+                    canonicalName = Normalizer.normalize(canonicalName);
                 }
+                invertedIndex.computeIfAbsent(canonicalName, k -> new HashSet<>()).add(pos);
             }
             pos++;
         }
     }
 
     public boolean isReady(){
-        return !recipes.isEmpty() && !invertedIndex.isEmpty();
+        return !recipesCompleted.isEmpty() && !invertedIndex.isEmpty();
     }
 
     @Override
@@ -52,36 +53,40 @@ public class InvertedIndexSearchEngine implements SearchEngine{
 
         if(!all.isEmpty()){
             List<Set<Integer>> positionsList1 = new ArrayList<>();
-            for(String ingredientName: all){
-                positionsList1.add(this.search(ingredientName));
+            for(String canonicalName: all){
+                positionsList1.add(this.search(canonicalName));
             }
-            Set<Integer> positionsAfterAllStrategy = this.allStrategy.executeStrategy(positionsList1, this.recipes.size());
+            Set<Integer> positionsAfterAllStrategy = this.allStrategy.executeStrategy(positionsList1, this.recipesCompleted.size());
             list.add(positionsAfterAllStrategy);
         }
 
         if(!any.isEmpty()){
             List<Set<Integer>> positionsList2 = new ArrayList<>();
-            for(String ingredientName: any){
-                positionsList2.add(this.search(ingredientName));
+            for(String canonicalName: any){
+                positionsList2.add(this.search(canonicalName));
             }
-            Set<Integer> positionsAfterAnyStrategy = this.anyStrategy.executeStrategy(positionsList2, this.recipes.size());
+            Set<Integer> positionsAfterAnyStrategy = this.anyStrategy.executeStrategy(positionsList2, this.recipesCompleted.size());
             list.add(positionsAfterAnyStrategy);
         }
 
         if(!none.isEmpty()){
             List<Set<Integer>> positionsList3 = new ArrayList<>();
-            for(String ingredientName: none){
-                positionsList3.add(this.search(ingredientName));
+            for(String canonicalName: none){
+                positionsList3.add(this.search(canonicalName));
             }
-            Set<Integer> positionsAfterNoneStrategy = this.noneStrategy.executeStrategy(positionsList3, this.recipes.size());
+            Set<Integer> positionsAfterNoneStrategy = this.noneStrategy.executeStrategy(positionsList3, this.recipesCompleted.size());
             list.add(positionsAfterNoneStrategy);
         }
 
-        return this.intersect(list).stream().map(recipes::get).sorted(Comparator.comparing(Recipe::name, String.CASE_INSENSITIVE_ORDER)).collect(Collectors.toList());
+        return this.intersect(list).stream()
+                .map(recipesCompleted::get)
+                .map(Converter::convertToRecipe)
+                .sorted(Comparator.comparing(Recipe::name, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
     }
 
-    private Set<Integer> search(String ingredientName){
-        return new HashSet<>(this.invertedIndex.getOrDefault(Normalizer.normalize(ingredientName), Collections.emptySet()));
+    private Set<Integer> search(String canonicalName){
+        return new HashSet<>(this.invertedIndex.getOrDefault(Normalizer.normalize(canonicalName), Collections.emptySet()));
     }
 
     private Set<Integer> intersect(List<Set<Integer>> list){

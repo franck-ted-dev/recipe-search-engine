@@ -1,8 +1,6 @@
 package com.github.franckteddev.search.db;
 
-import com.github.franckteddev.search.model.CanonicalIngredient;
-import com.github.franckteddev.search.model.Ingredient;
-import com.github.franckteddev.search.model.Recipe;
+import com.github.franckteddev.search.model.*;
 
 import java.sql.*;
 import java.util.*;
@@ -69,52 +67,56 @@ public class RecipeRepository {
                 .orElse(-1);
     }
 
-    public List<Recipe> getAll() throws SQLException {
-        List<Recipe> recipes = new ArrayList<>();
+    public List<RecipeCompleted> getAll() throws SQLException {
+        List<RecipeCompleted> recipesCompleted = new ArrayList<>();
 
         String sql = "SELECT r.id AS recipe_id, r.name, r.instructions, r.country, r.imageURL, r.videoURL, " +
-                "i.name AS ingredient_name, i.quantity " +
+                "i.name AS ingredient_name, i.quantity, c.name AS canonical_ingredient_name " +
                 "FROM recipe r " +
                 "JOIN ingredient i ON r.id = i.recipe_id " +
+                "LEFT JOIN canonicalingredient c on c.id = i.canonical_ingredient_id " +
                 "ORDER BY r.id";
 
         try(PreparedStatement statement = connection.prepareStatement(sql)) {
             ResultSet resultSet = statement.executeQuery();
 
-            Map<Integer, List<Ingredient>> ingredientsByRecipeId = new LinkedHashMap<>();
-            Map<Integer, String> namesById = new LinkedHashMap<>();
-            Map<Integer, String> instructionsById = new LinkedHashMap<>();
-            Map<Integer, String> countryById = new LinkedHashMap<>();
-            Map<Integer, String> imageUrlsById = new LinkedHashMap<>();
-            Map<Integer, String> videoUrlsById = new LinkedHashMap<>();
+            Map<Integer, List<IngredientCompleted>> ingredientsCompletedByRecipeId = new LinkedHashMap<>();
+            Map<Integer, String> recipeNamesById = new LinkedHashMap<>();
+            Map<Integer, String> recipeInstructionsById = new LinkedHashMap<>();
+            Map<Integer, String> recipeCountryById = new LinkedHashMap<>();
+            Map<Integer, String> recipeImageUrlsById = new LinkedHashMap<>();
+            Map<Integer, String> recipeVideoUrlsById = new LinkedHashMap<>();
 
             while (resultSet.next()){
                 int recipeId = resultSet.getInt("recipe_id");
+
                 String ingredientName = resultSet.getString("ingredient_name");
                 String quantity = resultSet.getString("quantity");
-                ingredientsByRecipeId
+                String canonicalIngredientName = resultSet.getString("canonical_ingredient_name");
+                ingredientsCompletedByRecipeId
                         .computeIfAbsent(recipeId, k -> new ArrayList<>())
-                        .add(new Ingredient(ingredientName, quantity));
-                namesById.putIfAbsent(recipeId, resultSet.getString("name"));
-                instructionsById.putIfAbsent(recipeId, resultSet.getString("instructions"));
-                countryById.putIfAbsent(recipeId, resultSet.getString("country"));
-                imageUrlsById.putIfAbsent(recipeId, resultSet.getString("imageURL"));
-                videoUrlsById.putIfAbsent(recipeId, resultSet.getString("videoURL"));
+                        .add(new IngredientCompleted(ingredientName, quantity, canonicalIngredientName));
+
+                recipeNamesById.putIfAbsent(recipeId, resultSet.getString("name"));
+                recipeInstructionsById.putIfAbsent(recipeId, resultSet.getString("instructions"));
+                recipeCountryById.putIfAbsent(recipeId, resultSet.getString("country"));
+                recipeImageUrlsById.putIfAbsent(recipeId, resultSet.getString("imageURL"));
+                recipeVideoUrlsById.putIfAbsent(recipeId, resultSet.getString("videoURL"));
             }
 
-            for(Map.Entry<Integer, List<Ingredient>> entry : ingredientsByRecipeId.entrySet()){
-                Recipe recipe = new Recipe(
+            for(Map.Entry<Integer, List<IngredientCompleted>> entry : ingredientsCompletedByRecipeId.entrySet()){
+                RecipeCompleted recipeCompleted = new RecipeCompleted(
                         entry.getKey().toString(),
-                        namesById.get(entry.getKey()),
-                        instructionsById.get(entry.getKey()),
-                        countryById.get(entry.getKey()),
+                        recipeNamesById.get(entry.getKey()),
+                        recipeInstructionsById.get(entry.getKey()),
+                        recipeCountryById.get(entry.getKey()),
                         entry.getValue(),
-                        imageUrlsById.get(entry.getKey()),
-                        videoUrlsById.get(entry.getKey()));
-                recipes.add(recipe);
+                        recipeImageUrlsById.get(entry.getKey()),
+                        recipeVideoUrlsById.get(entry.getKey()));
+                recipesCompleted.add(recipeCompleted);
             }
         }
-        return recipes;
+        return recipesCompleted;
     }
 
     public boolean isEmpty() throws SQLException {
