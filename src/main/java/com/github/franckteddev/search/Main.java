@@ -6,10 +6,7 @@ import com.github.franckteddev.search.fetchandsave.CanonicalIngredientFetcherAnd
 import com.github.franckteddev.search.fetchandsave.RecipeFetcherAndSaver;
 import com.github.franckteddev.search.filter.CorsFilter;
 import com.github.franckteddev.search.filter.MethodFilter;
-import com.github.franckteddev.search.handler.HealthHandler;
-import com.github.franckteddev.search.handler.RecipeHandler;
-import com.github.franckteddev.search.handler.SearchHandler;
-import com.github.franckteddev.search.handler.UnknownPathHandler;
+import com.github.franckteddev.search.handler.*;
 import com.github.franckteddev.search.model.CanonicalIngredient;
 import com.github.franckteddev.search.model.RecipeCompleted;
 import com.github.franckteddev.search.search.InvertedIndexSearchEngine;
@@ -30,6 +27,7 @@ public class Main {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
     public static void main(String[] args) throws IOException, SQLException {
         List<RecipeCompleted> recipesCompleted;
+        List<CanonicalIngredient>  canonicalIngredients;
 
         String url = "jdbc:postgresql://localhost:5432/recipe_search";
         String user = "recipe_user";
@@ -48,7 +46,7 @@ public class Main {
                 LOGGER.info("Canonical ingredients already present in the database.");
             }
 
-            List<CanonicalIngredient>  canonicalIngredients = canonicalIngredientRepository.getAll();
+            canonicalIngredients = canonicalIngredientRepository.getAll();
             RecipeRepository recipeRepository = new RecipeRepository(connection, canonicalIngredients);
             if(recipeRepository.isEmpty()){
                 LOGGER.info("No recipes found, fetching and saving...");
@@ -70,6 +68,13 @@ public class Main {
 
         HttpContext healthContext = server.createContext("/health", new HealthHandler(searchEngine));
         healthContext.getFilters().add(new MethodFilter("GET"));
+
+        HttpContext ingredientContext = server.createContext(
+                "/canonicalingredients",
+                new CanonicalIngredientHandler(canonicalIngredients)
+        );
+        ingredientContext.getFilters().add(new CorsFilter());
+        ingredientContext.getFilters().add(new MethodFilter("GET"));
 
         HttpContext searchContext = server.createContext("/search", new SearchHandler(searchEngine));
         searchContext.getFilters().add(new CorsFilter());
