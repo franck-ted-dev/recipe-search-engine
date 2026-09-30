@@ -1,5 +1,79 @@
-function parseIngredients(rawText) {
-    return rawText.split(",").map(terme => terme.trim()).filter(Boolean);
+const ingredientsList = document.querySelector("#ingredients-list");
+let ingredientsPresent = false;
+
+async function loadCanonicalIngredientsIfNeeded() {
+    if (ingredientsPresent) {
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:8000/canonicalingredients");
+        const data = await response.json();
+
+        const sortedIngredients = [...data.ingredients].sort((a, b) => a.localeCompare(b));
+        for (const ingredient of sortedIngredients) {
+            const option = document.createElement("option");
+            option.value = ingredient;
+            ingredientsList.appendChild(option);
+        }
+
+        ingredientsPresent = true;
+    } catch (error) {
+        // La saisie reste possible même si le chargement échoue, simplement sans suggestions.
+    }
+}
+
+function createIngredientField() {
+    const row = document.createElement("div");
+    row.className = "ingredient-row";
+
+    const input = document.createElement("input");
+    input.type = "search";
+    input.setAttribute("list", "ingredients-list");
+    input.className = "ingredient-input";
+    input.addEventListener("click", loadCanonicalIngredientsIfNeeded);
+
+    const clearButton = document.createElement("button");
+    clearButton.type = "button";
+    clearButton.textContent = "Vider";
+    clearButton.addEventListener("click", () => {
+        input.value = "";
+    });
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.textContent = "Supprimer";
+    removeButton.addEventListener("click", () => {
+        row.remove();
+    });
+
+    row.appendChild(input);
+    row.appendChild(clearButton);
+    row.appendChild(removeButton);
+
+    return row;
+}
+
+document.querySelectorAll(".add-ingredient").forEach(function (button) {
+    button.addEventListener("click", function () {
+        const category = button.dataset.category;
+        const container = document.querySelector(`.ingredient-fields[data-category="${category}"]`);
+        container.appendChild(createIngredientField());
+    });
+});
+
+function collectIngredients(category) {
+    const container = document.querySelector(`.ingredient-fields[data-category="${category}"]`);
+    const inputs = container.querySelectorAll(".ingredient-input");
+
+    const values = [];
+    for (const input of inputs) {
+        const value = input.value.trim();
+        if (value !== "") {
+            values.push(value);
+        }
+    }
+    return values;
 }
 
 const form = document.querySelector("form");
@@ -8,9 +82,9 @@ form.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const requestBody = {
-        all: parseIngredients(document.querySelector("#all-ingredients").value),
-        any: parseIngredients(document.querySelector("#any-ingredients").value),
-        none: parseIngredients(document.querySelector("#none-ingredients").value),
+        all: collectIngredients("all"),
+        any: collectIngredients("any"),
+        none: collectIngredients("none"),
     };
 
     try {

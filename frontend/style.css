@@ -27,6 +27,29 @@ form {
     gap: 4px;
 }
 
+.ingredient-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ingredient-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ingredient-row input {
+    flex: 1;
+}
+
+.ingredient-row button,
+.add-ingredient {
+    padding: 6px 10px;
+    font-size: 0.85em;
+    width: fit-content;
+}
+
 #results {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
