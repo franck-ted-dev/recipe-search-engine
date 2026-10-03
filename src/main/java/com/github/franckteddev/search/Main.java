@@ -39,8 +39,9 @@ public class Main {
                     new CanonicalIngredientRepository(connection);
             if(canonicalIngredientRepository.isEmpty()){
                 LOGGER.info("No canonical ingredients found, fetching and saving...");
+                String filename = "/ingredients_canonical.txt";
                 CanonicalIngredientFetcherAndSaver canonicalIngredientFetcherAndSaver =
-                        new CanonicalIngredientFetcherAndSaver(connection);
+                        new CanonicalIngredientFetcherAndSaver(connection, filename);
                 canonicalIngredientFetcherAndSaver.execute();
                 LOGGER.info("Canonical ingredients fetched and saved.");
             }else{

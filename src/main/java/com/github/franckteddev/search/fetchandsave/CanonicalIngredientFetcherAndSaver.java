@@ -12,17 +12,21 @@ import java.sql.SQLException;
 import static com.github.franckteddev.search.utility.Normalizer.normalize;
 
 public class CanonicalIngredientFetcherAndSaver extends FetcherAndSaver{
+    private final String filename;
 
-    public CanonicalIngredientFetcherAndSaver(Connection connection) {
+    public CanonicalIngredientFetcherAndSaver(
+            Connection connection,
+            String filename) {
         super(connection);
+        this.filename = filename;
     }
 
     @Override
     public void execute() throws IOException, SQLException {
         CanonicalIngredientRepository repository = new CanonicalIngredientRepository(super.connection);
-        try(InputStream is = CanonicalIngredientFetcherAndSaver.class.getResourceAsStream("/ingredients_canonical.txt")){
+        try(InputStream is = CanonicalIngredientFetcherAndSaver.class.getResourceAsStream(filename)){
             if(is == null){
-                throw new IOException("Unable to find ingredients_canonical.txt on the classpath");
+                throw new IOException("Unable to find ingredients' file on the classpath");
             }
             try(BufferedReader br = new BufferedReader(new InputStreamReader(is))){
                 String line;

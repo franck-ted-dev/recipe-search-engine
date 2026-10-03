@@ -1,0 +1,4 @@
+tomato:vegetable
+  Onion :vegetable
+
+chicken:meat
