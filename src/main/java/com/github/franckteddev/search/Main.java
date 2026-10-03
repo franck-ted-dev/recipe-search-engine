@@ -1,5 +1,6 @@
 package com.github.franckteddev.search;
 
+import com.github.franckteddev.search.connexion.RawDataFetcher;
 import com.github.franckteddev.search.db.CanonicalIngredientRepository;
 import com.github.franckteddev.search.db.RecipeRepository;
 import com.github.franckteddev.search.fetchandsave.CanonicalIngredientFetcherAndSaver;
@@ -50,7 +51,13 @@ public class Main {
             RecipeRepository recipeRepository = new RecipeRepository(connection, canonicalIngredients);
             if(recipeRepository.isEmpty()){
                 LOGGER.info("No recipes found, fetching and saving...");
-                RecipeFetcherAndSaver recipeFetcherAndSaver = new RecipeFetcherAndSaver(connection, canonicalIngredients);
+                RawDataFetcher rawDataFetcher = new RawDataFetcher(
+                        "https://www.themealdb.com/api/json/v1/1/search.php?f="
+                );
+                RecipeFetcherAndSaver recipeFetcherAndSaver = new RecipeFetcherAndSaver(
+                        connection,
+                        canonicalIngredients,
+                        rawDataFetcher);
                 recipeFetcherAndSaver.execute();
                 LOGGER.info("Recipes fetched and saved.");
             }else{

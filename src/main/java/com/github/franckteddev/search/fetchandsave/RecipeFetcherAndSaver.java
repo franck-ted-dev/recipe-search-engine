@@ -15,11 +15,14 @@ import java.util.logging.Logger;
 public class RecipeFetcherAndSaver extends FetcherAndSaver {
     private static final Logger LOGGER = Logger.getLogger(RecipeFetcherAndSaver.class.getName());
     private final List<CanonicalIngredient> canonicalIngredients;
+    private final RawDataFetcher rawDataFetcher;
 
     public RecipeFetcherAndSaver(Connection connection,
-                                 List<CanonicalIngredient> canonicalIngredients) {
+                                 List<CanonicalIngredient> canonicalIngredients,
+                                 RawDataFetcher rawDataFetcher) {
         super(connection);
         this.canonicalIngredients = canonicalIngredients;
+        this.rawDataFetcher = rawDataFetcher;
     }
 
     @Override
@@ -27,7 +30,6 @@ public class RecipeFetcherAndSaver extends FetcherAndSaver {
         RecipeRepository recipeRepository = new RecipeRepository(connection, canonicalIngredients);
 
         List<Recipe> recipes;
-        RawDataFetcher rawDataFetcher = new RawDataFetcher();
         RecipeMapper recipeMapper = new RecipeMapper();
         try {
             recipes = recipeMapper.map(rawDataFetcher.fetchAll());

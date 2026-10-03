@@ -11,6 +11,11 @@ import java.util.logging.Logger;
 
 public class RawDataFetcher {
     private static final Logger logger = Logger.getLogger(RawDataFetcher.class.getName());
+    private final String baseUrl;
+
+    public RawDataFetcher(String baseUrl){
+        this.baseUrl = baseUrl;
+    }
 
     public List<String> fetchAll() throws IOException, InterruptedException {
         List<String> results = new ArrayList<>();
@@ -18,7 +23,7 @@ public class RawDataFetcher {
             for(char c = 'a'; c <= 'z'; c++){
                 HttpRequest request = HttpRequest.newBuilder()
                         .GET()
-                        .uri(URI.create("https://www.themealdb.com/api/json/v1/1/search.php?f=" + c))
+                        .uri(URI.create(baseUrl + c))
                         .build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 int status = response.statusCode();
