@@ -56,6 +56,8 @@ public class RecipeRepository {
         } catch (SQLException e) {
             connection.rollback();
             throw e;
+        } finally {
+            connection.setAutoCommit(true);
         }
     }
 
