@@ -30,9 +30,21 @@ public class Main {
         List<RecipeCompleted> recipesCompleted;
         List<CanonicalIngredient>  canonicalIngredients;
 
-        String url = "jdbc:postgresql://localhost:5432/recipe_search";
-        String user = "recipe_user";
-        String password = "recipe_password";
+        String localUrl = "jdbc:postgresql://localhost:5432/recipe_search";
+        String localUser = "recipe_user";
+        String localPassword = "recipe_password";
+        String url = getEnvironmentVariable(
+                "DATABASE_URL",
+                localUrl
+        );
+        String user = getEnvironmentVariable(
+                "DATABASE_USER",
+                localUser
+        );
+        String password = getEnvironmentVariable(
+                "DATABASE_PASSWORD",
+                localPassword
+        );
 
         try(Connection connection = DriverManager.getConnection(url, user, password)){
             CanonicalIngredientRepository canonicalIngredientRepository =
@@ -71,28 +83,49 @@ public class Main {
         InvertedIndexSearchEngine searchEngine = new InvertedIndexSearchEngine(recipesCompleted);
         RecipeIndex recipeIndex = new RecipeIndex(convertToRecipes(recipesCompleted));
 
-        HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
+        int port = Integer.parseInt(getEnvironmentVariable(
+                "PORT",
+                "8000")
+        );
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.setExecutor(null);
 
+        String authorizedOrigin = getEnvironmentVariable(
+                "CORS_ORIGIN",
+                "http://localhost:63342");
+        CorsFilter corsFilter = new CorsFilter(authorizedOrigin);
+        MethodFilter getMethodFilter = new MethodFilter("GET");
+        MethodFilter postMethodFilter = new MethodFilter("POST");
+
         HttpContext healthContext = server.createContext("/health", new HealthHandler(searchEngine));
-        healthContext.getFilters().add(new CorsFilter());
-        healthContext.getFilters().add(new MethodFilter("GET"));
+        healthContext.getFilters().add(corsFilter);
+        healthContext.getFilters().add(getMethodFilter);
 
         HttpContext ingredientContext = server.createContext(
                 "/canonicalingredients",
                 new CanonicalIngredientHandler(canonicalIngredients)
         );
-        ingredientContext.getFilters().add(new CorsFilter());
-        ingredientContext.getFilters().add(new MethodFilter("GET"));
+        ingredientContext.getFilters().add(corsFilter);
+        ingredientContext.getFilters().add(getMethodFilter);
 
         HttpContext searchContext = server.createContext("/search", new SearchHandler(searchEngine));
-        searchContext.getFilters().add(new CorsFilter());
-        searchContext.getFilters().add(new MethodFilter("POST"));
+        searchContext.getFilters().add(corsFilter);
+        searchContext.getFilters().add(postMethodFilter);
 
         HttpContext recipeContext = server.createContext("/recipes", new RecipeHandler(recipeIndex));
-        recipeContext.getFilters().add(new MethodFilter("GET"));
+        recipeContext.getFilters().add(corsFilter);
+        recipeContext.getFilters().add(getMethodFilter);
 
         server.createContext("/", new UnknownPathHandler());
         server.start();
+    }
+
+    private static String getEnvironmentVariable(String env, String defaultValue){
+        if(!System.getenv().containsKey(env)){
+            LOGGER.warning(env + " is not set, using default value.");
+            return defaultValue;
+        }else {
+            return System.getenv(env);
+        }
     }
 }
