@@ -1,27 +1,69 @@
+// À modifier lors du déploiement : URL publique du backend.
+const API_BASE_URL = "http://localhost:8000";
+
+const RETRY_DELAY_MS = 3000;
+const REQUEST_TIMEOUT_MS = 10000;
+
 const ingredientsList = document.querySelector("#ingredients-list");
-let ingredientsPresent = false;
 
-async function loadCanonicalIngredientsIfNeeded() {
-    if (ingredientsPresent) {
-        return;
-    }
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Vrai uniquement si /health répond 200. Une réponse en erreur, un délai dépassé ou une
+// panne réseau (service endormi ou en cours de démarrage) veulent tous dire « pas prêt ».
+async function isBackendHealthy() {
     try {
-        const response = await fetch("http://localhost:8000/canonicalingredients");
+        const response = await fetch(`${API_BASE_URL}/health`, {
+            signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        });
+        return response.ok;
+    } catch (error) {
+        return false;
+    }
+}
+
+// Vrai uniquement si la liste a été reçue et ajoutée au <datalist>.
+async function loadCanonicalIngredients() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/canonicalingredients`, {
+            signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        });
+        if (!response.ok) {
+            return false;
+        }
         const data = await response.json();
 
         const sortedIngredients = [...data.ingredients].sort((a, b) => a.localeCompare(b));
+        ingredientsList.textContent = "";
         for (const ingredient of sortedIngredients) {
             const option = document.createElement("option");
             option.value = ingredient;
             ingredientsList.appendChild(option);
         }
-
-        ingredientsPresent = true;
+        return true;
     } catch (error) {
-        // La saisie reste possible même si le chargement échoue, simplement sans suggestions.
+        return false;
     }
 }
+
+function unlockSearch() {
+    document.querySelector("#startup-status").hidden = true;
+    document.querySelectorAll(".add-ingredient, #search-button").forEach((button) => {
+        button.disabled = false;
+    });
+}
+
+// Une seule requête en cours à la fois : on attend la fin de chacune avant de réessayer.
+async function startApplication() {
+    while (!(await isBackendHealthy())) {
+        await wait(RETRY_DELAY_MS);
+    }
+    while (!(await loadCanonicalIngredients())) {
+        await wait(RETRY_DELAY_MS);
+    }
+    unlockSearch();
+}
+
+startApplication();
 
 function createIngredientField() {
     const row = document.createElement("div");
@@ -31,7 +73,6 @@ function createIngredientField() {
     input.type = "search";
     input.setAttribute("list", "ingredients-list");
     input.className = "ingredient-input";
-    input.addEventListener("click", loadCanonicalIngredientsIfNeeded);
 
     const clearButton = document.createElement("button");
     clearButton.type = "button";
@@ -88,7 +129,7 @@ form.addEventListener("submit", async function (event) {
     };
 
     try {
-        const response = await fetch("http://localhost:8000/search", {
+        const response = await fetch(`${API_BASE_URL}/search`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(requestBody),

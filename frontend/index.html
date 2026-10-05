@@ -11,26 +11,31 @@
 
 <datalist id="ingredients-list"></datalist>
 
+<div id="startup-status" role="status" aria-live="polite">
+    <span class="spinner" aria-hidden="true"></span>
+    <p>Démarrage du service… Cela peut prendre jusqu'à une minute.</p>
+</div>
+
 <form>
     <div class="field">
         <label class="ingredient-label">Ingrédients à inclure (ALL)</label>
         <div class="ingredient-fields" data-category="all"></div>
-        <button type="button" class="add-ingredient" data-category="all">+ Ajouter un ingrédient</button>
+        <button type="button" class="add-ingredient" data-category="all" disabled>+ Ajouter un ingrédient</button>
     </div>
 
     <div class="field">
         <label class="ingredient-label">Au moins un de ces ingrédients (ANY)</label>
         <div class="ingredient-fields" data-category="any"></div>
-        <button type="button" class="add-ingredient" data-category="any">+ Ajouter un ingrédient</button>
+        <button type="button" class="add-ingredient" data-category="any" disabled>+ Ajouter un ingrédient</button>
     </div>
 
     <div class="field">
         <label class="ingredient-label">Ingrédients à exclure (NONE)</label>
         <div class="ingredient-fields" data-category="none"></div>
-        <button type="button" class="add-ingredient" data-category="none">+ Ajouter un ingrédient</button>
+        <button type="button" class="add-ingredient" data-category="none" disabled>+ Ajouter un ingrédient</button>
     </div>
 
-    <button type="submit">Rechercher</button>
+    <button type="submit" id="search-button" disabled>Rechercher</button>
 </form>
 
 <div id="results"></div>
