@@ -75,6 +75,7 @@ public class Main {
         server.setExecutor(null);
 
         HttpContext healthContext = server.createContext("/health", new HealthHandler(searchEngine));
+        healthContext.getFilters().add(new CorsFilter());
         healthContext.getFilters().add(new MethodFilter("GET"));
 
         HttpContext ingredientContext = server.createContext(
