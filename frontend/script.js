@@ -1,5 +1,8 @@
-// À modifier lors du déploiement : URL publique du backend.
-const API_BASE_URL = "http://localhost:8000";
+// Choisit le backend selon l'endroit d'où la page est servie.
+const LOCAL_HOSTNAMES = ["localhost", "127.0.0.1"];
+const API_BASE_URL = LOCAL_HOSTNAMES.includes(window.location.hostname)
+    ? "http://localhost:8000"
+    : "https://recipe-search-engine-a25m.onrender.com";
 
 const RETRY_DELAY_MS = 3000;
 const REQUEST_TIMEOUT_MS = 10000;
@@ -63,7 +66,7 @@ async function startApplication() {
     unlockSearch();
 }
 
-startApplication();
+startApplication().catch(console.error);
 
 function createIngredientField() {
     const row = document.createElement("div");
