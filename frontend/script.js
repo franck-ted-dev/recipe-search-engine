@@ -79,14 +79,14 @@ function createIngredientField() {
 
     const clearButton = document.createElement("button");
     clearButton.type = "button";
-    clearButton.textContent = "Vider";
+    clearButton.textContent = "Clear";
     clearButton.addEventListener("click", () => {
         input.value = "";
     });
 
     const removeButton = document.createElement("button");
     removeButton.type = "button";
-    removeButton.textContent = "Supprimer";
+    removeButton.textContent = "Remove";
     removeButton.addEventListener("click", () => {
         row.remove();
     });
@@ -156,7 +156,7 @@ function renderError(){
 
     const messageError = document.createElement("p");
     messageError.className = "error-message";
-    messageError.textContent = "Impossible de contacter le serveur. Réessayer plus tard";
+    messageError.textContent = "Unable to reach the server. Please try again later.";
     resultsContainer.appendChild(messageError);
 }
 
@@ -167,7 +167,7 @@ function renderRecipes(recipes) {
     if(recipes.length === 0) {
         const messageNoResults = document.createElement("p");
         messageNoResults.className = "no-results-message";
-        messageNoResults.textContent = "Aucune recette ne correspond à cette recherche";
+        messageNoResults.textContent = "No recipe matches this search";
         resultsContainer.appendChild(messageNoResults);
         return;
     }
@@ -190,7 +190,7 @@ function renderRecipes(recipes) {
         name.textContent = recipe.name;
 
         const moreInfoButton = document.createElement("button");
-        moreInfoButton.textContent = "Plus d'informations";
+        moreInfoButton.textContent = "More details";
 
         moreInfoButton.addEventListener("click", () => {
             recipeCountry.textContent = recipe.country;

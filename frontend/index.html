@@ -14,41 +14,41 @@
 
 <div id="startup-status" role="status" aria-live="polite">
     <span class="spinner" aria-hidden="true"></span>
-    <p>Démarrage du service… Cela peut prendre jusqu'à une minute.</p>
+    <p>Starting the service...This can take up to a minute.</p>
 </div>
 
 <form>
     <div class="field">
-        <label class="ingredient-label">Ingrédients à inclure (ALL)</label>
+        <label class="ingredient-label">Ingredients to include (ALL)</label>
         <div class="ingredient-fields" data-category="all"></div>
-        <button type="button" class="add-ingredient" data-category="all" disabled>+ Ajouter un ingrédient</button>
+        <button type="button" class="add-ingredient" data-category="all" disabled>+ Add an ingredient</button>
     </div>
 
     <div class="field">
-        <label class="ingredient-label">Au moins un de ces ingrédients (ANY)</label>
+        <label class="ingredient-label">At least one of these ingredients (ANY)</label>
         <div class="ingredient-fields" data-category="any"></div>
-        <button type="button" class="add-ingredient" data-category="any" disabled>+ Ajouter un ingrédient</button>
+        <button type="button" class="add-ingredient" data-category="any" disabled>+ Add an ingredient</button>
     </div>
 
     <div class="field">
-        <label class="ingredient-label">Ingrédients à exclure (NONE)</label>
+        <label class="ingredient-label">Ingredients to exclude (NONE)</label>
         <div class="ingredient-fields" data-category="none"></div>
-        <button type="button" class="add-ingredient" data-category="none" disabled>+ Ajouter un ingrédient</button>
+        <button type="button" class="add-ingredient" data-category="none" disabled>+ Add an ingredient</button>
     </div>
 
-    <button type="submit" id="search-button" disabled>Rechercher</button>
+    <button type="submit" id="search-button" disabled>Search</button>
 </form>
 
 <div id="results"></div>
 
 <dialog id="recipe-details">
     <form method="dialog">
-        <button>Fermer</button>
+        <button>Close</button>
     </form>
-    <p><strong>Origine :</strong> <span id="dialog-country"></span></p>
+    <p><strong>Origin :</strong> <span id="dialog-country"></span></p>
     <ul id="dialog-ingredients"></ul>
     <p id="dialog-instructions"></p>
-    <p><a id="dialog-video" href="" target="_blank" rel="noopener">Regarder la vidéo</a></p>
+    <p><a id="dialog-video" href="" target="_blank" rel="noopener">Watch video</a></p>
 </dialog>
 <script src="script.js"></script>
 </body>
