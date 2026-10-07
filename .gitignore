@@ -44,3 +44,9 @@ architecture.ctb
 
 ### Manual test ###
 data.txt
+
+CAHIER_DES_CHARGES.md
+.idea/dataSources.xml
+.idea/data_source_mapping.xml
+.idea/dictionaries/
+.idea/sqldialects.xml
