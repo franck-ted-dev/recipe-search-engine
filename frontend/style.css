@@ -58,8 +58,28 @@ form {
 
 .ingredient-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
+}
+
+.field-error,
+.form-error {
+    margin: 0;
+    font-size: 0.9em;
+    color: #C0392B;
+}
+
+.field-error {
+    flex-basis: 100%;
+}
+
+.form-error {
+    text-align: center;
+}
+
+.ingredient-input[aria-invalid="true"] {
+    border-color: #C0392B;
 }
 
 .ingredient-row input {

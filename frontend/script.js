@@ -8,6 +8,10 @@ const RETRY_DELAY_MS = 3000;
 const REQUEST_TIMEOUT_MS = 10000;
 
 const ingredientsList = document.querySelector("#ingredients-list");
+const formError = document.querySelector("#form-error");
+
+// Nom en minuscules -> nom exact de la liste, pour valider la saisie sans tenir compte de la casse.
+let canonicalIngredientsByLowercase = new Map();
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -42,6 +46,9 @@ async function loadCanonicalIngredients() {
             option.value = ingredient;
             ingredientsList.appendChild(option);
         }
+        canonicalIngredientsByLowercase = new Map(
+            sortedIngredients.map((ingredient) => [ingredient.toLowerCase(), ingredient])
+        );
         return true;
     } catch (error) {
         return false;
@@ -77,12 +84,17 @@ function createIngredientField() {
     input.setAttribute("list", "ingredients-list");
     input.className = "ingredient-input";
     input.placeholder = "Type an ingredient, then pick one from the list";
+    input.addEventListener("input", () => {
+        clearFieldError(input);
+        formError.hidden = true;
+    });
 
     const clearButton = document.createElement("button");
     clearButton.type = "button";
     clearButton.textContent = "Clear";
     clearButton.addEventListener("click", () => {
         input.value = "";
+        clearFieldError(input);
     });
 
     const removeButton = document.createElement("button");
@@ -92,11 +104,72 @@ function createIngredientField() {
         row.remove();
     });
 
+    // Message d'erreur propre à ce champ, caché tant qu'il n'y a rien à signaler.
+    const fieldError = document.createElement("p");
+    fieldError.className = "field-error";
+    fieldError.setAttribute("role", "alert");
+    fieldError.hidden = true;
+
     row.appendChild(input);
     row.appendChild(clearButton);
     row.appendChild(removeButton);
+    row.appendChild(fieldError);
 
     return row;
+}
+
+function showFieldError(input, message) {
+    const fieldError = input.closest(".ingredient-row").querySelector(".field-error");
+    fieldError.textContent = message;
+    fieldError.hidden = false;
+    input.setAttribute("aria-invalid", "true");
+}
+
+function clearFieldError(input) {
+    const fieldError = input.closest(".ingredient-row").querySelector(".field-error");
+    fieldError.hidden = true;
+    input.removeAttribute("aria-invalid");
+}
+
+// Vérifie le formulaire avant d'envoyer la recherche. Vrai si tout est correct.
+// Une saisie reconnue est remplacée par le nom exact de la liste (ex. « chicken » -> « Chicken »).
+function validateForm() {
+    formError.hidden = true;
+
+    let hasIngredient = false;
+    let firstInvalidInput = null;
+
+    for (const input of document.querySelectorAll(".ingredient-input")) {
+        clearFieldError(input);
+
+        const value = input.value.trim();
+        if (value === "") {
+            continue;
+        }
+        hasIngredient = true;
+
+        const canonicalName = canonicalIngredientsByLowercase.get(value.toLowerCase());
+        if (canonicalName === undefined) {
+            showFieldError(input, `"${value}" isn't in our ingredient list. Pick one of the suggestions.`);
+            firstInvalidInput ??= input;
+        } else {
+            input.value = canonicalName;
+        }
+    }
+
+    if (firstInvalidInput !== null) {
+        firstInvalidInput.focus();
+        return false;
+    }
+
+    if (!hasIngredient) {
+        formError.textContent = "Add at least one ingredient to start your search.";
+        formError.hidden = false;
+        document.querySelector(".ingredient-input").focus();
+        return false;
+    }
+
+    return true;
 }
 
 document.querySelectorAll(".add-ingredient").forEach(function (button) {
@@ -131,6 +204,10 @@ const form = document.querySelector("form");
 
 form.addEventListener("submit", async function (event) {
     event.preventDefault();
+
+    if (!validateForm()) {
+        return;
+    }
 
     const requestBody = {
         all: collectIngredients("all"),
