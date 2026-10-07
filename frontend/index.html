@@ -9,34 +9,39 @@
 
 <body>
 <h1>Recipe Search Engine</h1>
+<p class="intro">Tell us what's in your kitchen and we'll find recipes that fit.</p>
 
 <datalist id="ingredients-list"></datalist>
 
 <div id="startup-status" role="status" aria-live="polite">
     <span class="spinner" aria-hidden="true"></span>
-    <p>Starting the service...This can take up to a minute.</p>
+    <p>Starting the service... This can take up to a minute.</p>
 </div>
 
 <form>
     <div class="field">
         <label class="ingredient-label">Must contain all of these</label>
+        <p class="field-hint">The essentials: every recipe will contain all of these.</p>
         <div class="ingredient-fields" data-category="all"></div>
         <button type="button" class="add-ingredient" data-category="all" disabled>+ Add an ingredient</button>
     </div>
 
     <div class="field">
         <label class="ingredient-label">Must contain at least one of these</label>
+        <p class="field-hint">Optional: every recipe will contain at least one of these.</p>
         <div class="ingredient-fields" data-category="any"></div>
         <button type="button" class="add-ingredient" data-category="any" disabled>+ Add an ingredient</button>
     </div>
 
     <div class="field">
         <label class="ingredient-label">Must not contain any of these</label>
+        <p class="field-hint">Optional: recipes containing any of these are left out. Handy for allergies.</p>
         <div class="ingredient-fields" data-category="none"></div>
         <button type="button" class="add-ingredient" data-category="none" disabled>+ Add an ingredient</button>
     </div>
 
     <button type="submit" id="search-button" disabled>Search</button>
+    <p class="fine-print">Allergic to something? Always double-check a recipe's full ingredient list.</p>
 </form>
 
 <div id="results"></div>
@@ -45,7 +50,7 @@
     <form method="dialog">
         <button>Close</button>
     </form>
-    <p><strong>Origin :</strong> <span id="dialog-country"></span></p>
+    <p><strong>Origin:</strong> <span id="dialog-country"></span></p>
     <ul id="dialog-ingredients"></ul>
     <p id="dialog-instructions"></p>
     <p><a id="dialog-video" href="" target="_blank" rel="noopener">Watch video</a></p>
