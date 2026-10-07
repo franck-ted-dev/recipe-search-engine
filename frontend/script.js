@@ -50,8 +50,8 @@ async function loadCanonicalIngredients() {
 
 function unlockSearch() {
     document.querySelector("#startup-status").hidden = true;
-    document.querySelectorAll(".add-ingredient, #search-button").forEach((button) => {
-        button.disabled = false;
+    document.querySelectorAll(".add-ingredient, #search-button, .ingredient-input").forEach((element) => {
+        element.disabled = false;
     });
 }
 
@@ -76,6 +76,7 @@ function createIngredientField() {
     input.type = "search";
     input.setAttribute("list", "ingredients-list");
     input.className = "ingredient-input";
+    input.placeholder = "Type an ingredient, then pick one from the list";
 
     const clearButton = document.createElement("button");
     clearButton.type = "button";
@@ -105,6 +106,12 @@ document.querySelectorAll(".add-ingredient").forEach(function (button) {
         container.appendChild(createIngredientField());
     });
 });
+
+// Un premier champ est visible dès le départ dans la section « all » ; il reste désactivé
+// jusqu'à ce que le backend soit prêt (unlockSearch le débloque avec le reste).
+const firstField = createIngredientField();
+firstField.querySelector(".ingredient-input").disabled = true;
+document.querySelector('.ingredient-fields[data-category="all"]').appendChild(firstField);
 
 function collectIngredients(category) {
     const container = document.querySelector(`.ingredient-fields[data-category="${category}"]`);
