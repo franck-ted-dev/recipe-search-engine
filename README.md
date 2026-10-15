@@ -2,6 +2,12 @@
 
 Find recipes from what is in your kitchen. Type the ingredients you have, the ones you want at least one of, and the ones you want to avoid; the engine returns the matching recipes.
 
+![The search form, filled with ingredients to include and to exclude](docs/screenshot-search.png)
+
+![The recipes found for that search](docs/screenshot-results.jpg)
+
+![The details of a recipe: origin, ingredients, instructions and a video link](docs/screenshot-details.png)
+
 ## Try it online
 
 The application is deployed and open to anyone, with no sign-up: <https://franck-ted-dev.github.io/recipe-search-engine/>
